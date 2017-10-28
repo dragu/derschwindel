@@ -6,23 +6,21 @@
         <div id="block-timer">
             <div class="row">
                 <div class="col s12 m4">
-                    <div class="first-line">1:11 PM</div>
-                    <div class="date">Oct 11, 2017</div>
+                    <div class="first-line reward-time">{{"now"|localizeddate("short", "none", null, null, "h:mm a")}}</div>
+                    <div class="date">{{"now"|localizeddate("short", "none", null, null, "MMM d, y")}}</div>
                     <div>
                         Next reward time
                     </div>
                 </div>
                 <div class="col s12 m4">
-                    <div class="first-line">
-                        x seconds
+                    <div id="countUp" class="first-line">
                     </div>
                     <div>
                         last block
                     </div>
                 </div>
                 <div class="col s12 m4">
-                    <div class="first-line">
-                        1s
+                    <div id="countDown" class="first-line">
                     </div>
                     <div>
                         next block time
@@ -34,16 +32,86 @@
     
     <div id="right">
         <h2>Recent blocks</h2>
-        <div class="row block">
-            <div class="col s12 m4">
-                hash
-            </div>
-            <div class="col s12 m4">
-                0:00 PM
-            </div>
-            <div class="col s12 m4">
-                123
-            </div>
-        </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="https://www.datejs.com/build/date.js"></script>
+    
+    <script>
+        (function () {
+            var $timer = $('#block-timer');
+            
+            function createBlockHtml(hash, date, id) {
+                return $.parseHTML('<div class="row block">'+
+                    '<div class="col s12 m4">'+hash+'</div>'+
+                    '<div class="col s12 m4">'+new Date(date).toString("hh:mm tt")+'</div>'+
+                    '<div class="col s12 m4">'+id+'</div>'+
+                    '</div>');
+            };
+            
+            function updateBlocks() {
+                $.get('{{path('dig')}}', function (response) {
+                    if (!response.success) {
+                        return;
+                    }
+                    
+                    $('#right .block').remove();
+
+                    $.each(response.result.blocks, function (i, block) {
+                        $('#right').append(createBlockHtml(block.hash, block.createdAt, block.id));
+                    });
+                    
+                    $timer.find('.reward-time').text(new Date(response.result.nextRewardTime).toString("hh:mm tt"));
+                    $timer.find('.date').text(new Date(response.result.nextRewardTime).toString("MMM d, yyyy"));
+                });
+            };
+            
+            updateBlocks();
+            
+            var seconds = [0, 6, 12, 18, 24, 30, 36, 42, 48, 54];
+            var secondNow = {{"now"|date('s')}};
+            
+            function startTimer(diff) {
+                var nextBlockSeconds = diff;
+                var lastBlockSeconds = 6 - diff;
+                var $countDown = $('#countDown');
+                var $countUp = $('#countUp');
+                
+                window.timer = window.setInterval(function () {
+                    nextBlockSeconds = nextBlockSeconds - 1;
+                    lastBlockSeconds = lastBlockSeconds + 1;
+                    $countDown.text(nextBlockSeconds+'s');
+                    
+                    if (lastBlockSeconds >= 6) {
+                        updateBlocks();
+                        
+                        lastBlockSeconds = 0;
+                        $countUp.text('now');
+                    } else {
+                        var txt = '';
+                        if (lastBlockSeconds === 1) {
+                            txt = 'second'
+                        } else {
+                            txt = 'seconds';
+                        }
+
+                        $countUp.text(lastBlockSeconds +' '+ txt + ' ago');
+                    }
+                    
+                    if (nextBlockSeconds <= 0) {
+                        nextBlockSeconds = 6;
+                    }
+                }, 1000);
+            };
+
+            $.each(seconds, function (i, sec) {
+                if (sec >= secondNow) {
+                    startTimer(sec - secondNow);
+                    
+                    return false;
+                }
+            });
+        })();
+    </script>
 {% endblock %}

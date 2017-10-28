@@ -27,7 +27,7 @@ class BlockchainGenerator
         $this->blockRepository = $em->getRepository('AppBundle:Block');
     }
 
-    public function generate()
+    public function generate() : DateTime
     {
         $lastBlock = $this->getLastBlock();
 
@@ -51,6 +51,8 @@ class BlockchainGenerator
         }
 
         $this->em->flush();
+
+        return $nextBlockTime;
     }
 
     /**
@@ -58,7 +60,7 @@ class BlockchainGenerator
      */
     private function getLastBlock()
     {
-        return $this->blockRepository->findOneBy([], ['id' => 'desc']);
+        return $this->blockRepository->findLast();
     }
 
     private function generateBlock(DateTime $time)
