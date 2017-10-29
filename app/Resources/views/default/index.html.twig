@@ -2,7 +2,15 @@
 
 {% block body %}
     <div id="left">
-        <div id="logo-container"></div>
+        <div id="logo-container">
+            <div id="search">
+                <i class="material-icons" id="run-search">search</i>
+                <form class="hide">
+                    <input type="text" name="id" placeholder="Search Block Number" required />
+                    <input type="submit" value="ok" />
+                </form>
+            </div>
+        </div>
         <div id="block-timer">
             <div class="row">
                 <div class="col s12 m4">
@@ -33,6 +41,29 @@
     <div id="right">
         <h2>Recent blocks</h2>
     </div>
+                    
+    <div id="block-details-popup" class="hide">
+        <div>
+            <i class="material-icons close">close</i>
+            <h1>
+                Block ID: <span class="block-id"></span>
+            </h1>
+        </div>
+        
+        <div>
+            <h2 class="grey-text">Block info</h2>
+        </div>
+        
+        <div>
+            Block #: <span class="block-hash"></span><br />
+            Date: <span class="block-date"></span><br />
+            Signature: <span class="block-signature"></span><br />
+        </div>
+        
+        <div>
+            <h2 class="grey-text">Operations (<span class="block-operations"></span>)</h2>
+        </div>
+    </div>
 {% endblock %}
 
 {% block javascripts %}
@@ -42,8 +73,9 @@
         (function () {
             var $timer = $('#block-timer');
             
-            function createBlockHtml(hash, date, id) {
-                return $.parseHTML('<div class="row block">'+
+            function createBlockHtml(hash, date, id, operations, signature) {
+                var data = 'data-hash="'+hash+'" data-id="'+id+'" data-date="'+date+'" data-operationsCount="'+operations+'" data-signature="'+signature+'"';
+                return $.parseHTML('<div class="row block" '+data+'>'+
                     '<div class="col s12 m4">'+hash+'</div>'+
                     '<div class="col s12 m4">'+new Date(date).toString("hh:mm tt")+'</div>'+
                     '<div class="col s12 m4">'+id+'</div>'+
@@ -59,7 +91,20 @@
                     $('#right .block').remove();
 
                     $.each(response.result.blocks, function (i, block) {
-                        $('#right').append(createBlockHtml(block.hash, block.createdAt, block.id));
+                        var $blockHtml = $(createBlockHtml(block.hash, block.createdAt, block.id, block.operationsCount, block.signature));
+                        $('#right').append($blockHtml);
+                        
+                        $blockHtml.click(function () {
+                            var $block = $(this);
+                           
+                            showBlockPopup(
+                                $block.attr('data-id'),
+                                $block.attr('data-date'),
+                                $block.attr('data-hash'),
+                                $block.attr('data-signature'),
+                                $block.attr('data-operationsCount')
+                            );
+                        });
                     });
                     
                     $timer.find('.reward-time').text(new Date(response.result.nextRewardTime).toString("hh:mm tt"));
@@ -112,6 +157,58 @@
                     return false;
                 }
             });
+            
+            $('#run-search').click(function (e) {
+                e.stopPropagation();
+
+                var $search = $(this).parents('#search');
+                var $form = $search.find('form');
+                var $icon = $(this);
+
+                $icon.hide();
+                $form.removeClass('hide');
+
+                $(window).click(function() {
+                    $icon.show();
+                    $form.addClass('hide');
+                });
+
+                $form.click(function (e) {
+                    e.stopPropagation();
+                });
+                
+                $form.submit(function (e) {
+                    e.preventDefault();
+                    
+                    var id = parseInt($(this).find('input[name="id"]').val());
+                    
+                    $.get('/find/'+id, function (response) {
+                       showBlockPopup(response.id, response.createdAt, response.hash, response.signature, response.operationsCount)
+                    }).fail(function () {
+                        Materialize.toast('Block not found', 10000);
+                    });
+                });
+            });
+            
+            function showBlockPopup(id, date, hash, signature, operations) {
+                var $popup = $('#block-details-popup');
+                
+                $popup.find('.block-id').text(id);
+                $popup.find('.block-date').text(new Date(date).toString("MMMM dd, yyyy hh:mm tt"));
+                $popup.find('.block-hash').text(hash);
+                $popup.find('.block-signature').text(signature);
+                $popup.find('.block-operations').text(operations);
+                
+                $popup.removeClass('hide');
+                
+                $popup.find('.close').click(function () {
+                    $popup.addClass('hide');
+                });
+            }
         })();
     </script>
+{% endblock %}
+
+{% block stylesheets %}
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 {% endblock %}
