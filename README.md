@@ -1,4 +1,4 @@
-schwindel
+DerSchwindel
 =========
 
-A Symfony project created on October 26, 2017, 6:12 pm.
+Welcome to DerSchwindel (don't mistake for DasCoin) open-source block explorer. I would like to show you how "blockchain" applications with closed source code may work.
