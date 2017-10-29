@@ -16,6 +16,28 @@ body {
     width: 50%;
 }
 
+#logo-container {
+    background: url(/img/logo.png);
+    width: 153px;
+    height: 50px;
+    margin: 20px 0 0 30px;
+}
+#logo-container:after {
+    display: inline-block;
+    content: 'explorer';
+    background: #0090d0;
+    position: absolute;
+    top: 36px;
+    left: 187px;
+    border-radius: 15px;
+    padding: 3px;
+    color: #021022;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-family: arial;
+    font-size: 11px;
+    
+}
 #block-timer {
     padding: 50px 0 0 20px;
     text-transform: uppercase;
