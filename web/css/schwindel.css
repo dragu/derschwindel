@@ -6,14 +6,24 @@ body {
 }
 
 #content {
-    width: 100%;
     height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
 #left, #right {
     float: left;
     vertical-align: top;
     width: 50%;
+}
+#right .blocks {
+    padding: 0;
+    overflow: scroll;
+    overflow-x: hidden;
+    height: 100%;
 }
 
 #logo-container {
@@ -61,7 +71,8 @@ body {
     font-family: Roboto;
 }
 
-#right .block {
+#right .block,
+#right .block-header {
     padding: 20px 0 40px;
     border-bottom: 1px solid #051b3a;
     cursor: pointer;
@@ -73,6 +84,13 @@ body {
     font-weight: 700;
     line-height: 17px;
     text-align: center;
+}
+#right .block-header {
+    color: #004869;
+    text-transform: uppercase;
+}
+#right .block-header div:nth-child(1) {
+    text-align: left;
 }
 
 #right .block:hover {
@@ -89,9 +107,14 @@ body {
 }
 
 #right {
-    padding: 0 35px;
+    padding: 0;
     background: #021022;
     height: 100%;
+    display: block;
+}
+
+#right h2 {
+    padding: 0 35px;
 }
 
 #left {
@@ -159,4 +182,31 @@ input::placeholder
 #block-details-popup .block-signature {
     position: absolute;
     left: 150px;
+}
+
+.blocks{
+    scrollbar-face-color: rgba(0, 0, 0, 0.2);
+    scrollbar-shadow-color: rgba(0, 0, 0, 0.2);
+    scrollbar-highlight-color: rgba(0, 0, 0, 0.2);
+    scrollbar-3dlight-color: rgba(0, 0, 0, 0.2);
+    scrollbar-darkshadow-color: rgba(0, 0, 0, 0.2);
+    scrollbar-track-color: rgba(0, 0, 0, 0.2);
+    scrollbar-arrow-color: rgba(0, 0, 0, 0.2);
+}
+
+.blocks::-webkit-scrollbar {
+    width: 12px;
+}
+ 
+.blocks::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+ 
+.blocks::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.2); 
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
 }

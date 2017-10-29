@@ -40,6 +40,12 @@
     
     <div id="right">
         <h2>Recent blocks</h2>
+        <div class="row block-header">
+            <div class="col s12 m4">Block ID</div>
+            <div class="col s12 m4">Time</div>
+            <div class="col s12 m4">Height</div>
+        </div>
+        <div class="blocks"></div>
     </div>
                     
     <div id="block-details-popup" class="hide">
@@ -92,7 +98,7 @@
 
                     $.each(response.result.blocks, function (i, block) {
                         var $blockHtml = $(createBlockHtml(block.hash, block.createdAt, block.id, block.operationsCount, block.signature));
-                        $('#right').append($blockHtml);
+                        $('#right .blocks').append($blockHtml);
                         
                         $blockHtml.click(function () {
                             var $block = $(this);
